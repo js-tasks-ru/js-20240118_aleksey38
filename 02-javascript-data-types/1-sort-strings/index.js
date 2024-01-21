@@ -15,18 +15,12 @@ export function sortStrings(arr, param = 'asc') {
   return arrCopy
 }
 
-function compare_asc(a, b) {
-  let collator = new Intl.Collator(["ru-RU", "en-EN"], {
-    caseFirst: "upper"
-  });
+let collator = new Intl.Collator(["ru-RU", "en-EN"], {
+  caseFirst: "upper"
+});
 
-  return collator.compare(a, b)
-}
+let compare_asc = (a, b) => collator.compare(a, b);
 
-function compare_desc(a, b) {
-  let collator = new Intl.Collator(["ru-RU", "en-EN"], {
-    caseFirst: "upper"
-  });
-
+let compare_desc = (a, b) => {
   return collator.compare(a, b) * -1
 }
