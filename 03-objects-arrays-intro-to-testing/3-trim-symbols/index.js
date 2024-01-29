@@ -6,19 +6,18 @@
  */
 export function trimSymbols(string, size) {
   let res = ''
-  const obj = {
-    str: '',
-    cnt: 0,
-  }
+  let char = ''
+  let cnt = 0
+
   for (let i = 0; i < string.length; i++) {
-    if (obj.str !== string.charAt(i)) {
-      obj.cnt = 0;
+    if (char !== string.charAt(i)) {
+      cnt = 0;
     }
-    if (obj.cnt >= size){
+    if (cnt >= size){
       continue;
     }
-    obj.str = string.charAt(i);
-    obj.cnt += 1;
+    char = string.charAt(i);
+    cnt += 1;
 
     res += string.charAt(i);
   }
