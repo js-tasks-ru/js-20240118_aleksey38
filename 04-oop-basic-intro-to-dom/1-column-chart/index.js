@@ -79,5 +79,6 @@ export default class ColumnChart {
         value: String(Math.floor(item * scale))
       };
     });
+
   }
 }
