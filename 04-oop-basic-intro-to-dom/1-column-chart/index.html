@@ -17,7 +17,7 @@
       import ColumnChart from './index.js';
 
       const ordersData = [];
-      const salesData = [ 30, 40, 20, 80, 35, 15 ]; // 220
+      const salesData = [ 30, 40, 20, 80, 35, 15 ];
       const customersData = [ 100, 90, 80, 35, 90, 25 ];
 
       const ordersChart = new ColumnChart({
@@ -26,7 +26,6 @@
         value: 344,
         link: '#'
       });
-      // console.log(ordersChart.label)
 
       const salesChart = new ColumnChart({
         data: salesData,
@@ -34,9 +33,6 @@
         value: 243437,
         formatHeading: data => `$${data}`
       });
-      // console.log(salesChart.props.data)
-      // console.log(salesChart.props.element)
-      // console.log(salesChart.template())
 
       const customersChart = new ColumnChart({
         data: customersData,
