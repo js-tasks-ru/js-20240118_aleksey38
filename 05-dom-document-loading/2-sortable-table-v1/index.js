@@ -2,7 +2,7 @@ export default class SortableTable {
 
   field = 'title';
   order = '';
-  subElements;
+  subElements = {};
 
   constructor(headerConfig = [], data = []) {
     // this.getSortVar()
@@ -30,8 +30,9 @@ export default class SortableTable {
     this.element.remove()
 
     this.data = this.data.sort(this.customSort(this.field, this.order))
+    this.templateBody()
     this.element = this.createElement(this.templateMain())
-    document.getElementById('root').append(this.element)
+    // document.getElementById('root').append(this.element)
 
   }
   templateHeader(){
@@ -63,13 +64,11 @@ export default class SortableTable {
     for (const arg of this.data) {
       res += `
         <a href="/products/${arg.id}" class="sortable-table__row">
-          <div class="sortable-table__cell">
-            <img class="sortable-table-image" alt="Image" src="">
-          </div>
+          <div class="sortable-table__cell">${arg.title}<img class="sortable-table-image" alt="Image" src=""></div>
+          <div class="sortable-table__cell">${arg.price}</div>
           <div class="sortable-table__cell">${arg.title}</div>
   
           <div class="sortable-table__cell">${arg.discount}</div>
-          <div class="sortable-table__cell">${arg.price}</div>
           <div class="sortable-table__cell">${arg.sales}</div>
         </a>
       `
@@ -79,8 +78,7 @@ export default class SortableTable {
     const body = document.createElement('div')
 
     body.innerHTML = res
-    this.subElements = body.firstElementChild
-    // console.log('subEl: ', this.subElements.firstElementChild, body)
+    this.subElements.body = body.firstElementChild
     return res
   }
 
@@ -114,7 +112,7 @@ export default class SortableTable {
     if (order === 'desc') {
       return function(a, b) {
         if (field === 'price'){
-          return  b - a ;
+          return  b[field] - a[field] ;
         }
 
         return collator.compare(a[field], b[field]) * -1;
@@ -123,7 +121,7 @@ export default class SortableTable {
 
     return function(a,b) {
       if (field === 'price'){
-        return  a - b;
+        return  a[field] - b[field];
       }
 
       return collator.compare(a[field], b[field]);
