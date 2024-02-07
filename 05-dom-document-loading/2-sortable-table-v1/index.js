@@ -2,11 +2,15 @@ export default class SortableTable {
 
   field = 'title';
   order = '';
-  subElements = {};
+  subElements = {
+    body: document.createElement('div')
+  };
+
 
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig
-    this.data = data.sort(this.customSort(this.field, this.order))
+    this.data = data
+    this.sort('title', 'desc')
 
     this.element = this.createElement(this.templateMain())
   }
@@ -18,16 +22,48 @@ export default class SortableTable {
     return head.firstElementChild
   }
 
-  sort(field, order){
-    this.order = order
-    this.field = field
-    this.element.remove()
-
-    this.data = this.data.sort(this.customSort(this.field, this.order))
-    this.templateBody()
-    this.element = this.createElement(this.templateMain())
-    // document.getElementById('root').append(this.element)
+  prepareData(arr){
+    const newData = []
+    for (const elem of arr) {
+      const newElem = {}
+      newElem.id = elem.id
+      if (Object.hasOwn(elem, 'images')) {
+        newElem.images = elem.images[0].url
+      }
+      newElem.attr = []
+      for (const arg of this.headerConfig) {
+        if (!Array.isArray(elem[arg.id])){
+          newElem.attr.push(elem[arg.id])
+        }
+      }
+      newData.push(newElem)
+    }
+    return newData
   }
+
+  sort(fieldValue, orderValue) {
+    const orders = {
+      'desc': 1,
+      'asc': -1,
+    }
+
+    const arr = [...this.data].sort((itemA, itemB) => {
+      const k = orders[orderValue]
+      const valueA = itemA[fieldValue];
+      const valueB = itemB[fieldValue];
+
+      if (typeof valueA === 'string') {
+        return k * valueB.localeCompare(valueA, 'ru-en', { caseFirst: 'upper' });
+      }
+
+      return  k * (valueB - valueA);
+    });
+
+    const res = this.prepareData(arr)
+
+    this.subElements.body.innerHTML = this.createRowsBody(res);
+  }
+
   templateHeader(){
     let res = ''
     for (const arg of this.headerConfig) {
@@ -52,26 +88,25 @@ export default class SortableTable {
     return ''
   }
 
-  templateBody(){
-    let res = '<div data-element="body" class="sortable-table__body">'
-    for (const arg of this.data) {
-      res += `
-        <a href="/products/${arg.id}" class="sortable-table__row">
-          <div class="sortable-table__cell">${arg.title}<img class="sortable-table-image" alt="Image" src=""></div>
-          <div class="sortable-table__cell">${arg.price}</div>
-          <div class="sortable-table__cell">${arg.title}</div>
-  
-          <div class="sortable-table__cell">${arg.discount}</div>
-          <div class="sortable-table__cell">${arg.sales}</div>
-        </a>
-      `
+  createRowsBody(arr){
+
+    this.subElements.body.classList.add("sortable-table__body");
+    this.subElements.body.dataset.element = 'body'
+
+    let res = ''
+    for (const arg of arr) {
+      res += `<a href="/products/${arg.id}" class="sortable-table__row">`
+
+      if (Object.hasOwn(arg, 'images')) {
+        res += `<div class="sortable-table__cell"><img class="sortable-table-image" alt="Image" src="${arg.images}"></div>`
+      }
+
+      for (const argElement of arg.attr) {
+        res += `<div class="sortable-table__cell">${argElement}</div>`
+      }
+
+      res += `</a>`
     }
-    res += '</div>'
-
-    const body = document.createElement('div')
-
-    body.innerHTML = res
-    this.subElements.body = body.firstElementChild
     return res
   }
 
@@ -83,7 +118,8 @@ export default class SortableTable {
           <div data-element="header" class="sortable-table__header sortable-table__row">
             ${this.templateHeader()}
           </div>
-          ${this.templateBody()}
+          ${this.subElements.body.outerHTML}
+          
           <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
           <div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
             <div>
@@ -94,31 +130,6 @@ export default class SortableTable {
         </div>
       </div>
     `)
-  }
-
-  customSort(field = 'title', order = 'asc'){
-
-    const collator = new Intl.Collator(["ru-RU", "en-EN"], {
-      caseFirst: "upper"
-    });
-
-    if (order === 'desc') {
-      return function(a, b) {
-        if (field === 'price'){
-          return  b[field] - a[field] ;
-        }
-
-        return collator.compare(a[field], b[field]) * -1;
-      }
-    }
-
-    return function(a,b) {
-      if (field === 'price'){
-        return  a[field] - b[field];
-      }
-
-      return collator.compare(a[field], b[field]);
-    }
   }
 
   remove(){
