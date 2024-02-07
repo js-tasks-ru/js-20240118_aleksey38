@@ -5,7 +5,6 @@ export default class SortableTable {
   subElements = {};
 
   constructor(headerConfig = [], data = []) {
-    // this.getSortVar()
     this.headerConfig = headerConfig
     this.data = data.sort(this.customSort(this.field, this.order))
 
@@ -19,11 +18,6 @@ export default class SortableTable {
     return head.firstElementChild
   }
 
-  getSortVar(){
-    this.order = document.getElementById('order').value
-    this.field = document.getElementById('field').value
-  }
-
   sort(field, order){
     this.order = order
     this.field = field
@@ -33,7 +27,6 @@ export default class SortableTable {
     this.templateBody()
     this.element = this.createElement(this.templateMain())
     // document.getElementById('root').append(this.element)
-
   }
   templateHeader(){
     let res = ''
