@@ -1,84 +1,64 @@
 export default class SortableTable {
-
-  field = 'title';
-  order = '';
-  subElements = {
-    body: document.createElement('div')
-  };
-
+  subElements = {}
 
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig
     this.data = data
-    this.sort('title', 'desc')
 
-    this.element = this.createElement(this.templateMain())
+    this.element = this.createElement(this.createTemplateElement())
+    this.selectSubElements()
+
+    this.subElements.header.innerHTML = this.createHeaderTemplate();
+    this.subElements.body.innerHTML = this.createTableBodyTemplate(this.data);
+
+  }
+  selectSubElements() {
+    this.element.querySelectorAll('[data-element]').forEach(element => {
+      this.subElements[element.dataset.element] = element;
+    });
   }
 
   createElement(template){
-    const head = document.createElement('div')
-
-    head.innerHTML = template
-    return head.firstElementChild
+    const element = document.createElement('div')
+    element.innerHTML = template
+    return element.firstElementChild
   }
 
-  prepareData(arr){
-    const newData = []
-    for (const elem of arr) {
-      const newElem = {}
-      newElem.id = elem.id
-      if (Object.hasOwn(elem, 'images')) {
-        newElem.images = elem.images[0].url
-      }
-      newElem.attr = []
-      for (const arg of this.headerConfig) {
-        if (!Array.isArray(elem[arg.id])){
-          newElem.attr.push(elem[arg.id])
-        }
-      }
-      newData.push(newElem)
-    }
-    return newData
-  }
-
-  sort(fieldValue, orderValue) {
+  sort(fieldName = 'title', orderName = 'desc') {
     const orders = {
       'desc': 1,
       'asc': -1,
     }
-
-    const arr = [...this.data].sort((itemA, itemB) => {
-      const k = orders[orderValue]
-      const valueA = itemA[fieldValue];
-      const valueB = itemB[fieldValue];
+    const sortedData = [...this.data].sort((itemA, itemB) => {
+      const k = orders[orderName]
+      const valueA = itemA[fieldName];
+      const valueB = itemB[fieldName];
 
       if (typeof valueA === 'string') {
         return k * valueB.localeCompare(valueA, 'ru-en', { caseFirst: 'upper' });
       }
-
       return  k * (valueB - valueA);
     });
 
-    const res = this.prepareData(arr)
-
-    this.subElements.body.innerHTML = this.createRowsBody(res);
+    this.subElements.header.innerHTML = this.createHeaderTemplate(fieldName, orderName);
+    this.subElements.body.innerHTML = this.createTableBodyTemplate(sortedData);
   }
 
-  templateHeader(){
+  createHeaderTemplate(sortField = '', sortOrder = ''){
     let res = ''
-    for (const arg of this.headerConfig) {
+    for (const columnConfig of this.headerConfig) {
       res += `
-        <div class="sortable-table__cell" data-id="${arg.id}" data-sortable="${arg.sortable}" data-order="${this.order}">
-          <span>${arg.title}</span>
-         ${this.templateHeaderArrow(arg.id)}
+        <div class="sortable-table__cell" data-id="${columnConfig.id}" data-sortable="${columnConfig.sortable}" data-order="${sortOrder}">
+          <span>${columnConfig.title}</span>
+         ${this.createHeaderArrowTemplate(sortField, columnConfig.id)}
         </div>
       `
     }
     return res
   }
 
-  templateHeaderArrow(title){
-    if (this.field === title) {
+  createHeaderArrowTemplate(sortField, title){
+    if (sortField === title) {
       return (`
             <span data-element="arrow" class="sortable-table__sort-arrow">
               <span class="sort-arrow"></span>
@@ -88,37 +68,29 @@ export default class SortableTable {
     return ''
   }
 
-  createRowsBody(arr){
-
-    this.subElements.body.classList.add("sortable-table__body");
-    this.subElements.body.dataset.element = 'body'
-
+  createTableBodyTemplate(data){
     let res = ''
-    for (const arg of arr) {
+    for (const arg of data) {
       res += `<a href="/products/${arg.id}" class="sortable-table__row">`
-
-      if (Object.hasOwn(arg, 'images')) {
-        res += `<div class="sortable-table__cell"><img class="sortable-table-image" alt="Image" src="${arg.images}"></div>`
+      for (const column of this.headerConfig) {
+        if (Object.hasOwn(column, 'template')){
+          res += `<div class="sortable-table__cell">${column.template(column.images)}</div>`
+        } else {
+          res += `<div class="sortable-table__cell">${arg[column.id]}</div>`
+        }
       }
-
-      for (const argElement of arg.attr) {
-        res += `<div class="sortable-table__cell">${argElement}</div>`
-      }
-
       res += `</a>`
     }
     return res
   }
 
-  templateMain(){
+  createTemplateElement(){
     return(`
       <div data-element="productsContainer" class="products-list__container">
         <div class="sortable-table">
         
-          <div data-element="header" class="sortable-table__header sortable-table__row">
-            ${this.templateHeader()}
-          </div>
-          ${this.subElements.body.outerHTML}
+          <div data-element="header" class="sortable-table__header sortable-table__row"></div>
+          <div data-element="body" class="sortable-table__body"></div>
           
           <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
           <div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
