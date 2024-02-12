@@ -26,7 +26,7 @@ class Tooltip {
 
   createTemplate() {
     return (
-      `<div class="tooltip"></div>`
+        `<div class="tooltip"></div>`
     );
   }
 
