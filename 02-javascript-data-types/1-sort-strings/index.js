@@ -9,10 +9,10 @@ export function sortStrings(arr, param = 'asc') {
 
   if (param === 'asc') {
     arrCopy.sort(compare_asc);
-  } else if (param === 'desc'){
+  } else if (param === 'desc') {
     arrCopy.sort(compare_desc);
   }
-  return arrCopy
+  return arrCopy;
 }
 
 const collator = new Intl.Collator(["ru-RU", "en-EN"], {
@@ -22,5 +22,5 @@ const collator = new Intl.Collator(["ru-RU", "en-EN"], {
 const compare_asc = (a, b) => collator.compare(a, b);
 
 const compare_desc = (a, b) => {
-  return collator.compare(a, b) * -1
-}
+  return collator.compare(a, b) * -1;
+};

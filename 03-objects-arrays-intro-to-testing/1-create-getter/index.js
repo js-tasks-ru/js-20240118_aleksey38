@@ -5,13 +5,13 @@
  */
 export function createGetter(path) {
   const keys = path.split('.');
-  return function (obj){
+  return function (obj) {
     for (const key of keys) {
       if (!Object.hasOwn(obj, key)) {
-        return
+        return;
       }
-      obj = obj[key]
+      obj = obj[key];
     }
-    return obj
-  }
+    return obj;
+  };
 }
