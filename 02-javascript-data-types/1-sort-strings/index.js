@@ -8,9 +8,9 @@ export function sortStrings(arr, param = 'asc') {
   const arrCopy = [...arr];
 
   if (param === 'asc') {
-    arrCopy.sort(compareAsc);
+    arrCopy.sort(compare_asc);
   } else if (param === 'desc') {
-    arrCopy.sort(compareDesc);
+    arrCopy.sort(compare_desc);
   }
   return arrCopy;
 }
@@ -19,8 +19,8 @@ const collator = new Intl.Collator(["ru-RU", "en-EN"], {
   caseFirst: "upper"
 });
 
-const compareAsc = (a, b) => collator.compare(a, b);
+const compare_asc = (a, b) => collator.compare(a, b);
 
-const compareDesc = (a, b) => {
+const compare_desc = (a, b) => {
   return collator.compare(a, b) * -1;
 };
