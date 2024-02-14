@@ -30,7 +30,7 @@ class Tooltip {
     );
   }
 
-  hanldeDocumentPointerOver = (event) => {
+  handleDocumentPointerOver = (event) => {
     if (!event.target.dataset.tooltip) {
       return;
     }
@@ -38,7 +38,7 @@ class Tooltip {
     this.render(event.target.dataset.tooltip);
   }
 
-  hanldeDocumentPointerMove = (event) => {
+  handleDocumentPointerMove = (event) => {
     if (!event.target.dataset.tooltip) {
       return;
     }
@@ -47,7 +47,7 @@ class Tooltip {
     this.element.style.top = event.pageY + Tooltip.OFFSET_Y + 'px';
   }
 
-  hanldeDocumentPointerOut = (event) => {
+  handleDocumentPointerOut = (event) => {
     if (!event.target.dataset.tooltip) {
       return;
     }
@@ -61,15 +61,15 @@ class Tooltip {
   }
 
   createEventListeners() {
-    document.body.addEventListener('pointerover', this.hanldeDocumentPointerOver);
-    document.body.addEventListener('pointermove', this.hanldeDocumentPointerMove);
-    document.body.addEventListener('pointerout', this.hanldeDocumentPointerOut);
+    document.body.addEventListener('pointerover', this.handleDocumentPointerOver);
+    document.body.addEventListener('pointermove', this.handleDocumentPointerMove);
+    document.body.addEventListener('pointerout', this.handleDocumentPointerOut);
   }
 
   destroyEventListeners() {
-    document.body.removeEventListener('pointerover', this.hanldeDocumentPointerOver);
-    document.body.removeEventListener('pointermove', this.hanldeDocumentPointerMove);
-    document.body.removeEventListener('pointerout', this.hanldeDocumentPointerOut);
+    document.body.removeEventListener('pointerover', this.handleDocumentPointerOver);
+    document.body.removeEventListener('pointermove', this.handleDocumentPointerMove);
+    document.body.removeEventListener('pointerout', this.handleDocumentPointerOut);
   }
 
   remove() {
