@@ -92,10 +92,8 @@ export default class SortableTable {
     return (`
       <div data-element="productsContainer" class="products-list__container">
         <div class="sortable-table">
-
           <div data-element="header" class="sortable-table__header sortable-table__row"></div>
           <div data-element="body" class="sortable-table__body"></div>
-
           <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
           <div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
             <div>
@@ -111,7 +109,7 @@ export default class SortableTable {
 
   handleDocumentClick = (event) => {
 
-    let curDataSet = {};
+    let curDataSet
     if (Object.hasOwn(event.target.dataset, 'id')) {
       curDataSet = event.target.dataset;
     } else if (Object.hasOwn(event.target.parentElement.dataset, 'id')) {
@@ -120,9 +118,7 @@ export default class SortableTable {
       curDataSet = undefined;
     }
 
-    console.log('click', Object.hasOwn(curDataSet, 'id'), event.target.dataset, event.target.parentElement.dataset.id, '99:', curDataSet);
     if (!curDataSet || curDataSet.id === 'images') {
-      console.log('Галя у нас отмена');
       return;
     }
 
