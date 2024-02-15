@@ -108,7 +108,6 @@ export default class SortableTable {
 
 
   handleDocumentClick = (event) => {
-
     let curDataSet
     if (Object.hasOwn(event.target.dataset, 'id')) {
       curDataSet = event.target.dataset;
