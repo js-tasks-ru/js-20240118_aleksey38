@@ -108,7 +108,7 @@ export default class SortableTable {
 
 
   handleDocumentClick = (event) => {
-    let curDataSet
+    let curDataSet;
     if (Object.hasOwn(event.target.dataset, 'id')) {
       curDataSet = event.target.dataset;
     } else if (Object.hasOwn(event.target.parentElement.dataset, 'id')) {
@@ -138,7 +138,7 @@ export default class SortableTable {
   }
 
   destroy() {
-    this.destroyEventListeners()
+    this.destroyEventListeners();
     this.remove();
   }
 }

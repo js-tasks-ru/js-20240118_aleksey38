@@ -5,11 +5,11 @@ export default class DoubleSlider {
   sliderRect;
 
   constructor({
-                min = 100,
-                max = 200,
-                formatValue = (value => '$' + value),
-                selected = {}
-              } = {}) {
+    min = 100,
+    max = 200,
+    formatValue = (value => '$' + value),
+    selected = {}
+  } = {}) {
     this.min = min;
     this.max = max;
     this.formatValue = formatValue;
@@ -43,14 +43,14 @@ export default class DoubleSlider {
   }
 
   toPercent = (value, left = 'left') => {
-      const total = this.max - this.min;
-      const normalizeValue = Math.min(this.max, Math.max(this.min, value));
+    const total = this.max - this.min;
+    const normalizeValue = Math.min(this.max, Math.max(this.min, value));
     if (left === 'left') {
-      this.selected.fromPersent = ((normalizeValue - this.min) / total)*100;
-      return ((normalizeValue - this.min) / total)*100;
+      this.selected.fromPersent = ((normalizeValue - this.min) / total) * 100;
+      return ((normalizeValue - this.min) / total) * 100;
     } else {
-      this.selected.toPersent = ((normalizeValue - this.max) * -1 / total)*100;
-      return ((normalizeValue - this.max) * -1 / total)*100;
+      this.selected.toPersent = ((normalizeValue - this.max) * -1 / total) * 100;
+      return ((normalizeValue - this.max) * -1 / total) * 100;
     }
   }
 
@@ -76,20 +76,20 @@ export default class DoubleSlider {
   handleDocumentPointerDown = (e) => {
     if (!this.sliderRect) {
       this.sliderRect = this.subElements.inner.getBoundingClientRect();
-      this.selected.fromPx = this.subElements.thumbLeft.getBoundingClientRect().right
-      this.selected.toPx = this.subElements.thumbRight.getBoundingClientRect().left
+      this.selected.fromPx = this.subElements.thumbLeft.getBoundingClientRect().right;
+      this.selected.toPx = this.subElements.thumbRight.getBoundingClientRect().left;
     }
 
     if (e.target === this.subElements.thumbLeft) {
       this.currentThumb = 'left';
-      e.target.style.cursor = 'grabbing'
+      e.target.style.cursor = 'grabbing';
       document.addEventListener('pointermove', this.handleDocumentPointerMove);
       document.addEventListener('pointerup', this.handleDocumentPointerUp);
     }
 
     if (e.target === this.subElements.thumbRight) {
       this.currentThumb = 'right';
-      e.target.style.cursor = 'grabbing'
+      e.target.style.cursor = 'grabbing';
       document.addEventListener('pointermove', this.handleDocumentPointerMove);
       document.addEventListener('pointerup', this.handleDocumentPointerUp);
     }
@@ -102,14 +102,14 @@ export default class DoubleSlider {
     const sliderWidth = this.sliderRect.width;
     const percentXLeft = (normalizeClickXLeft - this.sliderRect.left) / sliderWidth * 100;
     const percentXRight = -1 * (normalizeClickXRight - this.sliderRect.right) / sliderWidth * 100;
-    const percentXRightValue =  Math.round((normalizeClickXRight - this.sliderRect.left) / sliderWidth * 100);
+    const percentXRightValue = Math.round((normalizeClickXRight - this.sliderRect.left) / sliderWidth * 100);
 
     if (this.currentThumb === 'right') {
       this.selected.to = this.toValue(Math.round(percentXRightValue));
       this.subElements.to.textContent = this.formatValue(this.selected.to);
       this.subElements.scale.style = `left: ${this.selected.fromPersent}%;right:${percentXRight}%`;
-      this.selected.toPersent = percentXRight
-      this.selected.toPx = normalizeClickX
+      this.selected.toPersent = percentXRight;
+      this.selected.toPx = normalizeClickX;
       this.subElements.thumbRight.style = `right: ${percentXRight}%`;
     }
 
@@ -117,14 +117,14 @@ export default class DoubleSlider {
       this.selected.from = this.toValue(Math.round(percentXLeft));
       this.subElements.from.textContent = this.formatValue(this.selected.from);
       this.subElements.scale.style = `left: ${percentXLeft}%;right:${this.selected.toPersent}%`;
-      this.selected.fromPersent = percentXLeft
-      this.selected.fromPx = normalizeClickX
+      this.selected.fromPersent = percentXLeft;
+      this.selected.fromPx = normalizeClickX;
       this.subElements.thumbLeft.style = `left: ${percentXLeft}%`;
     }
   }
 
   handleDocumentPointerUp = (e) => {
-    e.target.style.cursor = 'grab'
+    e.target.style.cursor = 'grab';
     document.removeEventListener('pointermove', this.handleDocumentPointerMove);
     document.removeEventListener('pointerup', this.handleDocumentPointerUp);
   }
