@@ -1,5 +1,4 @@
 export default class DoubleSlider {
-
   element;
   subElements = {};
   sliderRect;
@@ -13,9 +12,8 @@ export default class DoubleSlider {
     this.min = min;
     this.max = max;
     this.formatValue = formatValue;
-    this.selected = selected;
-    this.selected.from = selected.from || this.min;
-    this.selected.to = selected.to || this.max;
+    this.from = selected.from || this.min;
+    this.to = selected.to || this.max;
 
     this.element = this.createElement(this.createTemplate());
     this.selectSubElements();
@@ -31,27 +29,23 @@ export default class DoubleSlider {
   createTemplate() {
     return (`
       <div class="range-slider">
-        <span data-element="from">${this.formatValue(this.selected.from)}</span>
+        <span data-element="from">${this.formatValue(this.from)}</span>
         <div data-element="inner" class="range-slider__inner">
-          <span data-element="scale" class="range-slider__progress" style="left: ${this.toPercent(this.selected.from)}%; right: ${this.toPercent(this.selected.to, 'r')}%"></span>
-          <span data-element="thumbLeft" class="range-slider__thumb-left" style="left: ${this.toPercent(this.selected.from)}%"></span>
-          <span data-element="thumbRight" class="range-slider__thumb-right" style="right: ${this.toPercent(this.selected.to, 'r')}%"></span>
+          <span data-element="scale" class="range-slider__progress" style="left: ${this.toPercent(this.from)}%; right: ${this.toPercent(this.to, 'to')}%"></span>
+          <span data-element="thumbLeft" class="range-slider__thumb-left" style="left: ${this.toPercent(this.from)}%"></span>
+          <span data-element="thumbRight" class="range-slider__thumb-right" style="right: ${this.toPercent(this.to, 'to')}%"></span>
         </div>
-        <span data-element="to">${this.formatValue(this.selected.to)}</span>
+        <span data-element="to">${this.formatValue(this.to)}</span>
       </div>
     `);
   }
 
-  toPercent = (value, left = 'left') => {
+  toPercent = (value, current = 'from') => {
     const total = this.max - this.min;
-    const normalizeValue = Math.min(this.max, Math.max(this.min, value));
-    if (left === 'left') {
-      this.selected.fromPersent = ((normalizeValue - this.min) / total) * 100;
-      return ((normalizeValue - this.min) / total) * 100;
-    } else {
-      this.selected.toPersent = ((normalizeValue - this.max) * -1 / total) * 100;
-      return ((normalizeValue - this.max) * -1 / total) * 100;
+    if (current === 'from') {
+      return ((this.from - this.min) / total) * 100;
     }
+    return ((this.max - this.to) / total) * 100;
   }
 
   toValue = (percent) => {
@@ -73,12 +67,14 @@ export default class DoubleSlider {
     document.removeEventListener('pointerdown', this.handleDocumentPointerDown);
   }
 
-  handleDocumentPointerDown = (e) => {
+  getSliderRect() {
     if (!this.sliderRect) {
       this.sliderRect = this.subElements.inner.getBoundingClientRect();
-      this.selected.fromPx = this.subElements.thumbLeft.getBoundingClientRect().right;
-      this.selected.toPx = this.subElements.thumbRight.getBoundingClientRect().left;
     }
+  }
+
+  handleDocumentPointerDown = (e) => {
+    this.getSliderRect();
 
     if (e.target === this.subElements.thumbLeft) {
       this.currentThumb = 'left';
@@ -95,35 +91,36 @@ export default class DoubleSlider {
     }
   }
 
+  toPX(value) {
+    const total = this.max - this.min;
+    return (((value - this.min) / total) * this.sliderRect.width) + this.sliderRect.left;
+  }
+
   handleDocumentPointerMove = (e) => {
-    const normalizeClickX = Math.min(this.sliderRect.right, Math.max(this.sliderRect.left, e.clientX));
-    const normalizeClickXLeft = Math.min(this.selected.toPx || this.sliderRect.right, Math.max(this.sliderRect.left, e.clientX));
-    const normalizeClickXRight = Math.min(this.sliderRect.right, Math.max(this.selected.fromPx || this.sliderRect.left, e.clientX));
-    const sliderWidth = this.sliderRect.width;
-    const percentXLeft = (normalizeClickXLeft - this.sliderRect.left) / sliderWidth * 100;
-    const percentXRight = -1 * (normalizeClickXRight - this.sliderRect.right) / sliderWidth * 100;
-    const percentXRightValue = Math.round((normalizeClickXRight - this.sliderRect.left) / sliderWidth * 100);
 
     if (this.currentThumb === 'right') {
-      this.selected.to = this.toValue(Math.round(percentXRightValue));
-      this.subElements.to.textContent = this.formatValue(this.selected.to);
-      this.subElements.scale.style = `left: ${this.selected.fromPersent}%;right:${percentXRight}%`;
-      this.selected.toPersent = percentXRight;
-      this.selected.toPx = normalizeClickX;
-      this.subElements.thumbRight.style = `right: ${percentXRight}%`;
+      const normalizeClickXRight = Math.min(this.sliderRect.right, Math.max(this.toPX(this.from) || this.sliderRect.left, e.clientX));
+      const percentXRight = (this.sliderRect.right - normalizeClickXRight) / this.sliderRect.width * 100;
+
+      this.to = this.toValue(Math.round(100 - percentXRight));
+      this.subElements.to.textContent = this.formatValue(this.to);
+      this.subElements.scale.style.right = `${percentXRight}%`;
+      this.subElements.thumbRight.style.right = `${percentXRight}%`;
     }
 
     if (this.currentThumb === 'left') {
-      this.selected.from = this.toValue(Math.round(percentXLeft));
-      this.subElements.from.textContent = this.formatValue(this.selected.from);
-      this.subElements.scale.style = `left: ${percentXLeft}%;right:${this.selected.toPersent}%`;
-      this.selected.fromPersent = percentXLeft;
-      this.selected.fromPx = normalizeClickX;
-      this.subElements.thumbLeft.style = `left: ${percentXLeft}%`;
+      const normalizeClickXLeft = Math.min(this.toPX(this.to) || this.sliderRect.right, Math.max(this.sliderRect.left, e.clientX));
+      const percentXLeft = (normalizeClickXLeft - this.sliderRect.left) / this.sliderRect.width * 100;
+
+      this.from = this.toValue(Math.round(percentXLeft));
+      this.subElements.from.textContent = this.formatValue(this.from);
+      this.subElements.scale.style.left = `${percentXLeft}%`;
+      this.subElements.thumbLeft.style.left = `${percentXLeft}%`;
     }
   }
 
   handleDocumentPointerUp = (e) => {
+    this.dispatchEvent();
     e.target.style.cursor = 'grab';
     document.removeEventListener('pointermove', this.handleDocumentPointerMove);
     document.removeEventListener('pointerup', this.handleDocumentPointerUp);
@@ -136,5 +133,12 @@ export default class DoubleSlider {
   destroy() {
     this.remove();
     this.destroyEventListeners();
+  }
+
+  dispatchEvent = () => {
+    this.element.dispatchEvent(new CustomEvent('range-select', {
+      bubles: true,
+      detail: {from: this.from, to: this.to},
+    }));
   }
 }
