@@ -29,6 +29,7 @@ export default class SortableTable {
   }
 
   sort(fieldName = 'title', orderName = 'asc') {
+    console.log('v2 sort', fieldName, orderName);
     const orders = {
       'desc': 1,
       'asc': -1,
@@ -108,6 +109,7 @@ export default class SortableTable {
 
 
   handleDocumentClick = (event) => {
+    console.log('old обработчик');
     let curDataSet;
     if (Object.hasOwn(event.target.dataset, 'id')) {
       curDataSet = event.target.dataset;
@@ -122,14 +124,18 @@ export default class SortableTable {
     }
 
     let curOrder = curDataSet.order === 'desc' ? 'asc' : 'desc';
+
+    console.log('v2 handle', curDataSet.id, curOrder);
     this.sort(curDataSet.id, curOrder);
   }
   createEventListeners() {
+    console.log('old - createEventListeners');
     document.body.addEventListener('pointerdown', this.handleDocumentClick);
   }
 
   destroyEventListeners() {
-    document.body.addEventListener('pointerdown', this.handleDocumentClick);
+    console.log('old - removeEventListener');
+    document.body.removeEventListener('pointerdown', this.handleDocumentClick);
   }
 
 
