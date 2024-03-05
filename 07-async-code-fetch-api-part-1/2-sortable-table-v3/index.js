@@ -4,93 +4,81 @@ const BACKEND_URL = 'https://course-js.javascript.ru';
 import BaseSortableTableV2 from "../../06-events-practice/1-sortable-table-v2/index.js";
 
 export default class SortableTable extends BaseSortableTableV2 {
-  subElements = {}
-  element;
+  static SCROLL_ELEMENT = 3
 
-  constructor(headersConfig, {url, ...props} = {}) {
-    super(headersConfig, {props});
+  constructor(headersConfig, {url, isSortLocally = false, ...props} = {}) {
+    super(headersConfig, {isSortLocally, props});
     this.urlPref = url;
+    this.start = 0;
+    this.end = 3;
+    this.isSortLocally = isSortLocally;
 
-    this.element = this.createElement(this.createTemplateElement());
-    this.selectSubElements();
-
-    this.subElements.header.innerHTML = this.createHeaderTemplate();
-    this.subElements.body.innerHTML = this.createTableBodyTemplate(this.data);
-
-    this.createEventListeners();
-    // this.sortOnServer(this.sorted.id, this.sorted.order);
     this.render();
-
   }
 
+  sort(fieldName = 'title', orderName = 'asc', x = '') {
+    if (!this.isSortLocally) {
+      this.sortOnServer(fieldName, orderName, x);
+    } else {
+      this.sortOnClient(fieldName, orderName);
+    }
+  }
 
   createUrl() {
-    if (!this.url) {
-      this.url = new URL(BACKEND_URL + '/' + this.urlPref);
-    }
-    // https://course-js.javascript.ru/api/rest/products?_embed=subcategory.category&_sort=title&_order=asc&_start=0&_end=30
-    this.url.searchParams.set('_embed', 'subcategory.category');
-    this.url.searchParams.set('_sort', this.sorted.id);
-    this.url.searchParams.set('_order', this.sorted.order);
-    this.url.searchParams.set('_start', 0);
-    this.url.searchParams.set('_end', 4);
+    this.urlPref = this.urlPref || 'api/rest/products';
+    const url = new URL(BACKEND_URL + '/' + this.urlPref);
+    url.searchParams.set('_embed', 'subcategory.category');
+    url.searchParams.set('_sort', this.sorted.id);
+    url.searchParams.set('_order', this.sorted.order);
+    url.searchParams.set('_start', this.start || 0);
+    url.searchParams.set('_end', this.end || 10);
+    return url;
 
   }
-  async getData() {
-    const data = await fetchJson(this.url);
-
-    this.data = data;
-    console.log('async::');
-
-    return data;
+  async loadData() {
+    const url = this.createUrl();
+    this.data = await fetchJson(url);
   }
 
   sortOnClient (id, order) {
-    this.sort(id, order);
+    super.sort(id, order);
   }
 
-  sortOnServer (id = 'title', order = 'asc') {
-    console.log('sortOnServer:', this.url);
+  async sortOnServer (id = 'quantity', order = 'asc', x = '') {
     this.sorted.id = id;
     this.sorted.order = order;
 
-    this.createUrl();
-    this.getData();
+    await this.loadData();
 
+    this.renderDocumentBody(this.sorted.id, this.sorted.order);
   }
+
   async render() {
-    this.createUrl();
-    this.getData();
-
-    console.log('render:', this.data);
-
-    this.subElements.header.innerHTML = this.createHeaderTemplate(this.sorted.id, this.sorted.order);
-    this.subElements.body.innerHTML = this.createTableBodyTemplate(this.data);
+    await this.sortOnServer();
   }
 
-  handleDocumentClick = (event) => {
-    console.log('new обработчик');
-    let curDataSet;
-    if (Object.hasOwn(event.target.dataset, 'id')) {
-      curDataSet = event.target.dataset;
-    } else if (Object.hasOwn(event.target.parentElement.dataset, 'id')) {
-      curDataSet = event.target.parentElement.dataset;
-    } else {
-      curDataSet = undefined;
-    }
+  handleScrollWindow = () => {
+    console.log('hello scroll');
+  }
 
-    if (!curDataSet || curDataSet.id === 'images') {
-      return;
+  handleScrollWindow2 (event) {
+    const {scrollHeight, clientHeight} = document.documentElement;
+    const {scrollY} = window;
+    const bottomReached = scrollHeight - (scrollY + clientHeight) <= 0;
+    if (bottomReached) {
+      this.end += SortableTable.SCROLL_ELEMENT;
+      this.render();
     }
-
-    let curOrder = curDataSet.order === 'desc' ? 'asc' : 'desc';
-    this.sort(curDataSet.id, curOrder);
   }
 
   createEventListeners() {
-    console.log('new - createEventListeners');
+    super.createEventListeners();
+    document.addEventListener('scroll', this.handleScrollWindow2.bind(this));
+  }
 
-    document.body.addEventListener('pointerdown', this.handleDocumentClick);
+  destroyEventListeners() {
+    super.destroyEventListeners();
+    window.addEventListener('scroll', this.handleScrollWindow2);
   }
 
 }

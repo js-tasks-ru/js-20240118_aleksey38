@@ -29,7 +29,6 @@ export default class SortableTable {
   }
 
   sort(fieldName = 'title', orderName = 'asc') {
-    console.log('v2 sort', fieldName, orderName);
     const orders = {
       'desc': 1,
       'asc': -1,
@@ -44,9 +43,8 @@ export default class SortableTable {
       }
       return k * (valueB - valueA);
     });
-
-    this.subElements.header.innerHTML = this.createHeaderTemplate(fieldName, orderName);
-    this.subElements.body.innerHTML = this.createTableBodyTemplate(sortedData);
+    this.data = sortedData;
+    this.renderDocumentBody(fieldName, orderName);
   }
 
   createHeaderTemplate(sortField = '', sortOrder = '') {
@@ -79,7 +77,8 @@ export default class SortableTable {
       res += `<a href="/products/${arg.id}" class="sortable-table__row">`;
       for (const column of this.headerConfig) {
         if (Object.hasOwn(column, 'template')) {
-          res += `<div class="sortable-table__cell">${column.template(column.images)}</div>`;
+          const img = (column.images === undefined) ? `<img class="sortable-table-image" alt="Image" src="">` : column.template(column.images);
+          res += `<div class="sortable-table__cell">${img}</div>`;
         } else {
           res += `<div class="sortable-table__cell">${arg[column.id]}</div>`;
         }
@@ -109,7 +108,6 @@ export default class SortableTable {
 
 
   handleDocumentClick = (event) => {
-    console.log('old обработчик');
     let curDataSet;
     if (Object.hasOwn(event.target.dataset, 'id')) {
       curDataSet = event.target.dataset;
@@ -125,16 +123,21 @@ export default class SortableTable {
 
     let curOrder = curDataSet.order === 'desc' ? 'asc' : 'desc';
 
-    console.log('v2 handle', curDataSet.id, curOrder);
     this.sort(curDataSet.id, curOrder);
   }
+
+  renderDocumentBody(fieldName, orderName) {
+    this.subElements.header.innerHTML = this.createHeaderTemplate(fieldName, orderName);
+    if (this.data.length !== 0) {
+      this.subElements.body.innerHTML = this.createTableBodyTemplate(this.data);
+    }
+  }
+
   createEventListeners() {
-    console.log('old - createEventListeners');
     document.body.addEventListener('pointerdown', this.handleDocumentClick);
   }
 
   destroyEventListeners() {
-    console.log('old - removeEventListener');
     document.body.removeEventListener('pointerdown', this.handleDocumentClick);
   }
 
