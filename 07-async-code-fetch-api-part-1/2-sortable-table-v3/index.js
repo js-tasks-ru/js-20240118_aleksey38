@@ -12,8 +12,6 @@ export default class SortableTable extends BaseSortableTableV2 {
     this.start = 0;
     this.end = 3;
     this.isSortLocally = isSortLocally;
-
-    this.render();
   }
 
   sort(fieldName = 'title', orderName = 'asc', x = '') {

@@ -77,8 +77,7 @@ export default class SortableTable {
       res += `<a href="/products/${arg.id}" class="sortable-table__row">`;
       for (const column of this.headerConfig) {
         if (Object.hasOwn(column, 'template')) {
-          const img = (column.images === undefined) ? `<img class="sortable-table-image" alt="Image" src="">` : column.template(column.images);
-          res += `<div class="sortable-table__cell">${img}</div>`;
+          res += column.template(arg[column.id])
         } else {
           res += `<div class="sortable-table__cell">${arg[column.id]}</div>`;
         }
