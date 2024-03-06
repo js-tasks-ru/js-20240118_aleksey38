@@ -11,14 +11,13 @@ export default class SortableTable extends BaseSortableTableV2 {
     this.urlPref = url;
     this.start = 0;
     this.end = 3;
-    this.isSortLocally = isSortLocally;
   }
 
-  sort(fieldName = 'title', orderName = 'asc', x = '') {
-    if (!this.isSortLocally) {
-      this.sortOnServer(fieldName, orderName, x);
-    } else {
+  sort(fieldName = 'title', orderName = 'asc') {
+    if (this.isSortLocally) {
       this.sortOnClient(fieldName, orderName);
+    } else {
+      this.sortOnServer(fieldName, orderName, x);
     }
   }
 
