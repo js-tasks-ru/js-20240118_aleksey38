@@ -2,7 +2,10 @@ export default class SortableTable {
   subElements = {}
   element;
 
-  constructor(headersConfig, isSortLocally = true, {data = [], sorted = {}} = {}) {
+  constructor(
+            headersConfig,
+            { isSortLocally = true, data = [], sorted = {} } = {},
+  ) {
     this.headerConfig = headersConfig;
     this.data = data;
     this.sorted = sorted;

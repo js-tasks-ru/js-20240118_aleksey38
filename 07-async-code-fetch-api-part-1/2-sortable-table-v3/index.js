@@ -6,8 +6,11 @@ import BaseSortableTableV2 from "../../06-events-practice/1-sortable-table-v2/in
 export default class SortableTable extends BaseSortableTableV2 {
   static SCROLL_ELEMENT = 3
 
-  constructor(headersConfig, {url, isSortLocally = false, ...props} = {}) {
-    super(headersConfig, {isSortLocally, props});
+  constructor(
+      headersConfig,
+      {url, isSortLocally = false, data = [], sorted = {} } = {},
+  ) {
+    super(headersConfig, {isSortLocally, data, sorted});
     this.urlPref = url;
     this.start = 0;
     this.end = 3;
@@ -17,7 +20,7 @@ export default class SortableTable extends BaseSortableTableV2 {
     if (this.isSortLocally) {
       this.sortOnClient(fieldName, orderName);
     } else {
-      this.sortOnServer(fieldName, orderName, x);
+      this.sortOnServer(fieldName, orderName);
     }
   }
 
