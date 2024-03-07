@@ -8,11 +8,10 @@ export default class ColumnChart extends BaseColumnChart {
   subElements = {};
   constructor({
     url = '',
-    label = '',
     range = {},
-    formatHeading = v => v
+    ...props
   } = {}) {
-    super({url, label, formatHeading});
+    super(props);
     this.props.url = url;
     this.props.from = range.from || '';
     this.props.to = range.to || '';
@@ -27,10 +26,10 @@ export default class ColumnChart extends BaseColumnChart {
   }
 
   async update(start, end) {
-    let url = new URL(BACKEND_URL + '/' + this.props.url);
+    const url = new URL(BACKEND_URL + '/' + this.props.url);
     url.searchParams.set('from', start);
     url.searchParams.set('to', end);
-    let data = await fetchJson(url);
+    const data = await fetchJson(url);
     this.props.data = Object.values(data);
 
     this.element.classList.remove("column-chart_loading");
