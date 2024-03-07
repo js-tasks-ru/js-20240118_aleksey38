@@ -4,20 +4,21 @@ const BACKEND_URL = 'https://course-js.javascript.ru';
 import BaseSortableTableV2 from "../../06-events-practice/1-sortable-table-v2/index.js";
 
 export default class SortableTable extends BaseSortableTableV2 {
-  static SCROLL_ELEMENT = 3
+  static SCROLL_ELEMENT = 10
 
   constructor(
-      headersConfig,
-      {url, isSortLocally = false, data = [], sorted = {} } = {},
+    headersConfig,
+    {url, isSortLocally = false, sorted = {} } = {},
   ) {
-    super(headersConfig, {isSortLocally, data, sorted});
+    super(headersConfig, {isSortLocally, sorted});
     this.urlPref = url;
     this.start = 0;
-    this.end = 3;
+    this.end = 10;
   }
 
   sort(fieldName = 'title', orderName = 'asc') {
     if (this.isSortLocally) {
+      this.sortOnServer(fieldName, orderName);
       this.sortOnClient(fieldName, orderName);
     } else {
       this.sortOnServer(fieldName, orderName);
@@ -31,7 +32,7 @@ export default class SortableTable extends BaseSortableTableV2 {
     url.searchParams.set('_sort', this.sorted.id);
     url.searchParams.set('_order', this.sorted.order);
     url.searchParams.set('_start', this.start || 0);
-    url.searchParams.set('_end', this.end || 10);
+    url.searchParams.set('_end', this.end || SortableTable.SCROLL_ELEMENT);
     return url;
 
   }
@@ -54,11 +55,16 @@ export default class SortableTable extends BaseSortableTableV2 {
   }
 
   async render() {
-    await this.sortOnServer();
+    if (this.isSortLocally) {
+      await this.sortOnServer(this.sorted.id, this.sorted.order);
+      this.sortOnClient(this.sorted.id, this.sorted.order);
+    } else {
+      await this.sortOnServer(this.sorted.id, this.sorted.order);
+    }
   }
 
   handleScrollWindow = () => {
-    console.log('hello scroll');
+    console.log('scroll');
   }
 
   handleScrollWindow2 (event) {

@@ -3,8 +3,8 @@ export default class SortableTable {
   element;
 
   constructor(
-            headersConfig,
-            { isSortLocally = true, data = [], sorted = {} } = {},
+    headersConfig,
+    { isSortLocally = true, sorted = {}, data = [] } = {},
   ) {
     this.headerConfig = headersConfig;
     this.data = data;
@@ -81,7 +81,7 @@ export default class SortableTable {
       res += `<a href="/products/${arg.id}" class="sortable-table__row">`;
       for (const column of this.headerConfig) {
         if (Object.hasOwn(column, 'template')) {
-          res += column.template(arg[column.id])
+          res += column.template(arg[column.id]);
         } else {
           res += `<div class="sortable-table__cell">${arg[column.id]}</div>`;
         }
@@ -137,11 +137,11 @@ export default class SortableTable {
   }
 
   createEventListeners() {
-    document.body.addEventListener('pointerdown', this.handleDocumentClick);
+    this.subElements.header.addEventListener('pointerdown', this.handleDocumentClick);
   }
 
   destroyEventListeners() {
-    document.body.removeEventListener('pointerdown', this.handleDocumentClick);
+    this.subElements.header.removeEventListener('pointerdown', this.handleDocumentClick);
   }
 
 
